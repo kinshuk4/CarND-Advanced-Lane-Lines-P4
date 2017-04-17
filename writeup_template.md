@@ -1,5 +1,5 @@
-##Writeup Template
-###You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
+## Writeup Template
+### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
 
 ---
 
@@ -34,13 +34,13 @@ The goals / steps of this project are the following:
 [video5]: ./harder_challenge_video.mp4 "Harder Challenge Project Video"
 [video6]: ./out_harder_challenge_video.mp4 "Harder Challenge Output Video"
 
-## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
-###Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
+## [Rubric Points](https://review.udacity.com/#!/rubrics/571/view) 
+### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
 
 
-####1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
+#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
 
 You're reading it!
 
@@ -56,15 +56,23 @@ The list of files of this project is as follows:
 - [output_images](/output_images): Contains intermediate output images generated in the IPython notebook.
 - [test_images](/test_images): Contains sample input images used in the IPython notebook.
 
-###Camera Calibration
+### Camera Calibration
 
-####1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
+#### Code Info
 
-The code for this step is contained in the first code cell of the IPython notebook located in "./AdvancedLaneFindingWorkbook.ipynb".
+Note that all the code is located in [AdvancedLaneFindingWorkbook.ipynb](/AdvancedLaneFindingWorkbook.ipynb) and I will talking about that code only. Some of the reusable components of this jupyter file are present in the [/src](/src) directory, which we will not talk about in this writeup as it is duplicate. 
 
-I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
+#### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function. Image points are corners in the chessboard images. To detect corners in those chessboards, I used `cv2.findChessboardCorners()` function:
+To undistort images, I computed camera matrix and distortion coefficients. To do so, we have to perform camera calibration. 
+To calibrate camera, I need image and object points. 
+I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.
+
+ `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. To get image points, I converted images to gray scale, and then applied `cv2.findChessboardCorners` on them which returned corners i.e. image points. Image points are corners in the chessboard images.  
+
+After that I use `cv2.calibrateCamera` on image points and object points to get the calibration matrix, i.e. camera calibration and distortion coefficients. 
+
+I used `cv2.findChessboardCorners()` function:
 
 ![alt text][image1]
 
@@ -72,7 +80,7 @@ I applied this distortion correction to the test image using the `cv2.undistort(
 
 ![alt text][image2]
 
-###Pipeline (single images)
+### Pipeline (single images)
 Following are the steps in the pipeline:
 * Undistort an input image
 * Apply gradient and color filter i.e. use color transforms, gradients or other methods to create a thresholded binary image
@@ -81,17 +89,17 @@ Following are the steps in the pipeline:
 * Calculate curvature of the lane
 * Plot area between lanes
 
-####1. Provide an example of a distortion-corrected image.
+#### 1. Provide an example of a distortion-corrected image.
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
 
 ![alt text][image3]
 
-####2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
+#### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 I used a combination of color and gradient thresholds to generate a binary image in `FinalThresholder.grad_color_threshold()`, finally getting the final filtered image via `FinalThresholder.get_thresholded()`. Here is the image:
 
 ![alt text][image4]
 
-####3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
+#### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
 The code for my perspective transform includes a function called `PerspectiveTransformator.transform()`.  The function takes as inputs an image (`img`), as well as source (`src`) points.  I chose the hardcode the source points in the following manner:
 
@@ -134,7 +142,7 @@ I verified that my perspective transform was working as expected by drawing the 
 
 ![alt text][image5]
 
-####4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+#### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
 To find lane lines in the transformed image, I used histograms to detect color peak in the transformed image. This is `LaneDetector.find_lanes_first()` function in the "Fit polynomial" section in the IPython notebook. By checking histograms from bottom to top within sliding windows, I can detect curved lane lines. After that, I fit polynomial to the detected lines in the sliding windows, a smooth curve can be detected. The detected image is visualized as yellow lines in the image below.
 
@@ -143,11 +151,11 @@ Then I did some other stuff and fit my lane lines with a 2nd order polynomial ki
 
 ![alt text][image6]
 
-####5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
 A function to calculate radius of curvature (`LaneDetector.get_curvature_radius()`) is implemeted in the "Fit Polynomial" section in the IPython notebook. This function takes plotting data of the lane lines, and returns radius of curvature in meters.
 
-####6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
+#### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
 Finally, I implemented `Pipeline.add_detected_lanes()` in the "Pipeline" section of the IPython notebook. This function applies all steps described above to one image. This is output of this function with a test image:
 
@@ -156,9 +164,9 @@ Finally, I implemented `Pipeline.add_detected_lanes()` in the "Pipeline" section
 
 ---
 
-###Pipeline (video)
+### Pipeline (video)
 
-####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
+#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
 Here's a input video:
  ![alt text][video1]
@@ -168,8 +176,8 @@ Here's a input video:
 
 ---
 
-###Discussion
+### Discussion
 
-####1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
+#### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
 
