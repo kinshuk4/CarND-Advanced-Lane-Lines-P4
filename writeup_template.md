@@ -23,10 +23,9 @@ The goals / steps of this project are the following:
 [image3]: ./output_images/test_undistort_all.png "Undistorted Test Images"
 [image4]: ./output_images/combined_filters.png "Color and Gradient Filters"
 [image5]: ./output_images/warped.png "Perspective Transformation"
-[image6]: ./output_images/fit_lanes.png "Fit Lines to Lanes"
-[image7]: ./output_images/plot_lanes.png "Detected Lanes on a Test Image"
+[image6]: ./output_images/sliding_windows1.png "Fit Lines to Lanes"
+[image7]: ./output_images/pipeline_result.png "Detected Lanes on a Test Image"
 [image8]: ./output_images/src_corners.png "Finding Source Corners"
-[image9]: ./output_images/pipeline_result.png "Pipeline Result"
 [video1]: ./project_video.mp4 "Project Video"
 [video2]: ./output_video.mp4 "Output Video"
 [video3]: ./challenge_video.mp4 "Challenge 1 Project Video"
@@ -160,7 +159,7 @@ A function to calculate radius of curvature (`LaneDetector.get_curvature_radius(
 
 Finally, I implemented `Pipeline.add_detected_lanes()` in the "Pipeline" section of the IPython notebook. This function applies all steps described above to one image. This is output of this function with a test image:
 
-![alt text][image9]
+![alt text][image7]
 
 
 ---
