@@ -20,7 +20,7 @@ The goals / steps of this project are the following:
 
 [image1]: ./output_images/chessboard_corners.png "Chessboard Corners"
 [image2]: ./output_images/chessboard_undistort.png "Undistorted Chessboard"
-[image3]: ./output_images/test1_undistort.png "Undistorted image"
+[image3]: ./output_images/test_undistort_all.png "Undistorted Test Images"
 [image4]: ./output_images/combined_filters.png "Color and Gradient Filters"
 [image5]: ./output_images/warped.png "Perspective Transformation"
 [image6]: ./output_images/fit_lanes.png "Fit Lines to Lanes"
@@ -90,33 +90,37 @@ Following are the steps in the pipeline:
 * Plot area between lanes
 
 #### 1. Provide an example of a distortion-corrected image.
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+To demonstrate this step, I will describe how I apply the distortion correction to the images:
 
 ![alt text][image3]
 
+Check the section "Undistort the Test Images" for this.
+
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-I used a combination of color and gradient thresholds to generate a binary image in `FinalThresholder.grad_color_threshold()`, finally getting the final filtered image via `FinalThresholder.get_thresholded()`. Here is the image:
+I used a combination of color and gradient thresholds to generate a binary image in `FinalThresholder.grad_color_threshold()`, finally getting the final filtered image via `FinalThresholder.get_thresholded()`. 
+Here are the transforms I used:
+* Sobel gradient in x/y direction
+* Magnitude of Sobel gradient
+* Direction of Sobel gradient
+* Using only the S channel from the HLS colorspac
+
+Here is the final result for test1 image:
 
 ![alt text][image4]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `PerspectiveTransformator.transform()`.  The function takes as inputs an image (`img`), as well as source (`src`) points.  I chose the hardcode the source points in the following manner:
+The code for my perspective transform includes a function called `PerspectiveTransformer.transform()`.  The function takes as inputs an image (`img`), as well as source (`src`) points.  I chose the hardcode the source and points in the following manner:
 
-![alt text][image8]
+| Source        | Destination   | 
+|:-------------:|:-------------:| 
+| 600, 450      | 300, 0        | 
+| 700, 450      | 980, 0        |
+| 1150, 719     | 980, 720      |
+| 255, 719      | 300, 720      |
 
-Here are the source points:
+Then I mapped these corners to the destination points, which is hard-coded in the `PerspectiveTransformer.transform()` function as:
 
-```
-src_corners = [
-    [600, 450],  # top left
-    [700, 450],  # top right
-    [1150, 719], # bottom right
-    [255, 719]   # bottom left
-]
-```
-
-Then I mapped these corners to the destination points, which is hard-coded in the `transorm_perspective()` function as:
 
 ```
 offset_x = 300
@@ -129,14 +133,9 @@ dst = np.float32([
 ])
 ```
 
-This resulted in the following source and destination points:
+Sample image to show the trapezoid:
+![alt text][image8]
 
-| Source        | Destination   | 
-|:-------------:|:-------------:| 
-| 600, 450      | 300, 0        | 
-| 700, 450      | 980, 0        |
-| 1150, 719     | 980, 720      |
-| 255, 719      | 300, 720      |
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
@@ -144,16 +143,18 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-To find lane lines in the transformed image, I used histograms to detect color peak in the transformed image. This is `LaneDetector.find_lanes_first()` function in the "Fit polynomial" section in the IPython notebook. By checking histograms from bottom to top within sliding windows, I can detect curved lane lines. After that, I fit polynomial to the detected lines in the sliding windows, a smooth curve can be detected. The detected image is visualized as yellow lines in the image below.
+To find lane lines in the transformed image, I used histograms to detect color peak in the transformed image. This is `LaneDetector.find_lane_lines()` function in the "Fit polynomial" section in the IPython notebook. 
+
+To find the lane pixels, we use sliding window algorithm. In this algorithm, we check the histograms from bottom to top within sliding windows and detect curved lane lines. After that, I fit polynomial to the detected lines in the sliding windows, a smooth curve can be detected. The detected image is visualized as yellow lines in the image below.
 
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+Then we use 2nd order polynomial to fit the lane:
 
 ![alt text][image6]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-A function to calculate radius of curvature (`LaneDetector.get_curvature_radius()`) is implemeted in the "Fit Polynomial" section in the IPython notebook. This function takes plotting data of the lane lines, and returns radius of curvature in meters.
+A function to calculate radius of curvature (`LaneDetector.get_curvature_radius()`) is implemented in the "Fit Polynomial" section in the IPython notebook. This function takes plotting data of the lane lines, and returns radius of curvature in meters.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
@@ -180,4 +181,7 @@ Here's a input video:
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-
+Couple of Points:
+* Selecting the threshold values for color and sobel gradient is challenging and time consuming. While S channel is good, but it still has problems when there is high contrast in color of the road or when there is shadow on the road or there is vehicle going through the road.
+* Dealing with curvature is problematic, and when I tried the harder challenge videos, it certainly failed to find the lane.
+* Sometimes, lane have some markings in the middle and this approach assumes only the small part i.e. half of the lane is actual lane, which can be challenging when driving the actual vehicle.
