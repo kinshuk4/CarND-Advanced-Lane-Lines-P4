@@ -44,11 +44,8 @@ def grad_color_threshold(img, s_thres=(170, 255), sx_thres=(20, 100)):
     # Note color_binary[:, :, 0] is all 0s, effectively an all black image. It might
     # be beneficial to replace this channel with something else.
     color_binary = np.dstack((np.zeros_like(sxbinary), sxbinary, s_binary))
-    return color_binary
 
+    combined_binary = np.zeros_like(sxbinary)
+    combined_binary[(s_binary == 1) | (sxbinary == 1)] = 1
 
-def get_thresholded(img):
-    filters = grad_color_threshold(img)
-    combined_binary = np.zeros_like(filters)
-    combined_binary[(filters[:, :, 1] == 1) | (filters[:, :, 2] == 1)] = 1
-    return combined_binary
+    return color_binary, combined_binary

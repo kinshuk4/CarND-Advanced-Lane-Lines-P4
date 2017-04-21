@@ -130,8 +130,11 @@ def get_curvature_radius(leftx, rightx, ploty, xm_per_pix=3.7 / 700, ym_per_pix=
         2 * left_fit_cr[0])
     right_curverad = ((1 + (2 * right_fit_cr[0] * y_eval * ym_per_pix + right_fit_cr[1]) ** 2) ** 1.5) / np.absolute(
         2 * right_fit_cr[0])
+
+    center_curverad = np.average([left_curverad, right_curverad])
+
     # Now our radius of curvature is in meters
-    return np.average([left_curverad, right_curverad]), left_curverad, right_curverad
+    return center_curverad, left_curverad, right_curverad
 
 
 def show_inside_lane(undist_img, binary_warped, Minv, left_fitx, right_fitx, ploty):
@@ -152,3 +155,14 @@ def show_inside_lane(undist_img, binary_warped, Minv, left_fitx, right_fitx, plo
     # Combine the result with the original image
     result = cv2.addWeighted(undist_img, 1, newwarp, 0.3, 0)  # image should be undistorted version
     return result
+
+
+def get_off_center(img, left_fit, right_fit, xm_per_pix=3.7 / 700, ym_per_pix=30 / 720):
+    img_size = (img.shape[1], img.shape[0])
+
+    left_intcpt = left_fit[0] * img_size[1] ** 2 + left_fit[1] * img_size[1] + left_fit[2]
+    right_intcpt = right_fit[0] * img_size[1] ** 2 + right_fit[1] * img_size[1] + right_fit[2]
+    lane_mid = (left_intcpt + right_intcpt) / 2.0
+    car_off = (lane_mid - img_size[0] / 2.0) * xm_per_pix
+
+    return car_off
