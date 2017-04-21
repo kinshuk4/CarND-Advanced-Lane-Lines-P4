@@ -5,6 +5,24 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 
+def save_plot(plt, is_save=False, save_path="./image.png"):
+    if is_save is True:
+        # print("Saving image")
+        plt.savefig(save_path, bbox_inches='tight')
+
+
+def plot_single_image(image, is_gray=False, is_save=False,
+                      save_path="./image.png", title=None):
+    if title is not None:
+        plt.title(title)
+
+    if is_gray is True:
+        plt.imshow(image, cmap='gray')
+    else:
+        plt.imshow(image)
+    save_plot(plt, is_save=is_save, save_path=save_path)
+
+
 def plot_compare_two_images(image1, image2, suptitle="Heading", subtitle1="One", subtitle2="Two", is_save=False,
                             save_path="./imageCombined.png"):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 4))
@@ -18,9 +36,7 @@ def plot_compare_two_images(image1, image2, suptitle="Heading", subtitle1="One",
     ax2.set_title(subtitle2)
     ax2.imshow(image2)
 
-    if is_save is True:
-        # print("Saving image")
-        plt.savefig(save_path, bbox_inches='tight')
+    save_plot(plt, is_save=is_save, save_path=save_path)
 
 
 def plot_compare_two_image_paths(image_path1, image_path2, suptitle="Heading", subtitle1="One", subtitle2="Two",
@@ -55,9 +71,7 @@ def plot_compare_three_images(image1, image2, image3, suptitle="Heading", subtit
     ax3.set_title(subtitle3)
     ax3.imshow(image3)
 
-    if is_save is True:
-        # print("Saving image")
-        plt.savefig(save_path, bbox_inches='tight')
+    save_plot(plt, is_save=is_save, save_path=save_path)
 
 
 def plot_compare_three_images_from_n(image1, image2, image3, suptitle="Heading", subtitle1="One", subtitle2="Two",
@@ -87,9 +101,7 @@ def plot_compare_n_images(images, suptitle="Heading", subtitles=[], is_save=Fals
         tup.imshow(images[i])
         i += 1
 
-    if is_save is True:
-        # print("Saving image")
-        plt.savefig(save_path, bbox_inches='tight')
+    save_plot(plt, is_save=is_save, save_path=save_path)
 
 
 def plot_compare_n_images_grayed(images, suptitle="Heading", subtitles=[], grayed_array=[], is_save=False,
@@ -114,6 +126,4 @@ def plot_compare_n_images_grayed(images, suptitle="Heading", subtitles=[], graye
 
         i += 1
 
-    if is_save is True:
-        # print("Saving image")
-        plt.savefig(save_path, bbox_inches='tight')
+    save_plot(plt, is_save=is_save, save_path=save_path)

@@ -28,6 +28,14 @@ def split_channels(image, color_space='HLS'):
     ch3 = image_as_np_array[:, :, 2]
     return ch1, ch2, ch3
 
+def get_channel(image, color_space='HLS', channel=2):
+    ch1, ch2, ch3 = split_channels(image, color_space=color_space)
+    if channel is 0:
+        return ch1
+    elif channel is 1:
+        return ch2
+    elif channel is 2:
+        return ch3
 
 def hls_select(img, thres=(0, 255), channel=2):
     '''
@@ -65,10 +73,10 @@ def yCrCb_select(image, thresh=(0, 255), channel=0):
     return binary_output
 
 
-def lab_select(image, thresh=(90, 255), channel=2):
+def lab_select(image, thres=(90, 255), channel=2):
     lab = cv2.cvtColor(image, cv2.COLOR_RGB2LAB)
     # channel = 2 for B
     B = lab[:, :, channel]
     binary = np.zeros_like(B)
-    binary[(B > thresh[0]) & (B <= thresh[1])] = 1
+    binary[(B > thres[0]) & (B <= thres[1])] = 1
     return binary
