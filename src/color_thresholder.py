@@ -1,70 +1,74 @@
 import cv2
 import numpy as np
 
-class ColorThresholder:
-    @staticmethod
-    def hls_threshold(img, thresh=(0, 255), channel=2):
-        '''
+COLOR_SPACES = ['RGB', 'HLS', 'HSV']
+
+
+def convert_color(image, dest_color_space='HLS'):
+    if dest_color_space == 'YCrCb':
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb)
+    elif dest_color_space == 'YUV':
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
+    elif dest_color_space == 'LUV':
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2LUV)
+    elif dest_color_space == 'HLS':
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+    elif dest_color_space == 'HSV':
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    elif dest_color_space == 'grayscale':
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    return image
+
+
+def split_channels(image, color_space='HLS'):
+    converted_image = convert_color(image, dest_color_space=color_space)
+    image_as_np_array = converted_image.astype(np.float)
+    ch1 = image_as_np_array[:, :, 0]
+    ch2 = image_as_np_array[:, :, 1]
+    ch3 = image_as_np_array[:, :, 2]
+    return ch1, ch2, ch3
+
+
+def hls_select(img, thres=(0, 255), channel=2):
+    '''
         Channel 2 means we are selecting s
-        '''
-        # 1) Convert to HLS color space
-        S = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)[:,:,channel]
-        # 2) Apply a threshold to the S channel
-        binary_output = S.copy()
-        binary_output[(S < thresh[0]) | (S > thresh[1])] = 0
-        # 3) Return a binary image of threshold result
-        return binary_output
-    @staticmethod
-    def red_select(img, thresh=(0, 255)):
-        # 1) Convert to HLS color space
-        R = img[:,:,2]
-        # 2) Apply a threshold to the S channel
-        binary_output = R.copy()
-        binary_output[(S < thresh[0]) | (S > thresh[1])] = 0
-        # 3) Return a binary image of threshold result
-        return binary_output
-    @staticmethod
-    def yCrCb_select(img, thresh=(0, 255), channel=0):
-        # 1) Convert to HLS color space
-        S = cv2.cvtColor(img, cv2.COLOR_RGB2YCrCb)[:,:,channel]
-        # 2) Apply a threshold to the S channel
-        binary_output = S.copy()
-        binary_output[(S < thresh[0]) | (S > thresh[1])] = 0
-        # 3) Return a binary image of threshold result
-        return binary_output
-    @staticmethod
-    def grad_color_threshold(img, s_thresh=(170, 255), sx_thresh=(20, 100)):
-        """
-        Applies varies transformation on an image and combines them in one binary output
-        Parameters
-        ----------
-        image : numpy array
-            The image to process
-        Returns
-        -------
-        image : numpy array
-            The binary output image
-        """
-        img = np.copy(img)
-        # Convert to HLS color space and separate the V channel
-        hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS).astype(np.float)
-        l_channel = hls[:,:,1]
-        s_channel = hls[:,:,2]
-        # Apply sobel x to L channel
-        sobelx = cv2.Sobel(l_channel, cv2.CV_64F, 1, 0) # Take the derivative in x
-        abs_sobelx = np.absolute(sobelx) # Absolute x derivative to accentuate lines away from horizontal
-        scaled_sobel = np.uint8(255*abs_sobelx/np.max(abs_sobelx))
+    '''
+    # 1) Convert to HLS color space
+    S = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)[:, :, channel]
+    # 2) Apply a threshold to the S channel
+    binary_output = S.copy()
+    binary_output[(S < thres[0]) | (S > thres[1])] = 0
+    # 3) Return a binary image of threshold result
+    return binary_output
 
-        # Threshold x gradient
-        sxbinary = np.zeros_like(scaled_sobel)
-        sxbinary[(scaled_sobel >= sx_thresh[0]) & (scaled_sobel <= sx_thresh[1])] = 1
 
-        # Threshold color channel
-        s_binary = np.zeros_like(s_channel)
-        s_binary[(s_channel >= s_thresh[0]) & (s_channel <= s_thresh[1])] = 1
+def bgr_select(image, thres=(0, 255), channel=2):
+    '''
+        Channel 2 means we are selecting R
+    '''
+    # 1) Convert to HLS color space
+    R = image[:, :, channel]
+    # 2) Apply a threshold to the S channel
+    binary_output = R.copy()
+    binary_output[(R < thres[0]) | (R > thres[1])] = 0
+    # 3) Return a binary image of threshold result
+    return binary_output
 
-        # Stack each channel
-        # Note color_binary[:, :, 0] is all 0s, effectively an all black image. It might
-        # be beneficial to replace this channel with something else.
-        color_binary = np.dstack(( np.zeros_like(sxbinary), sxbinary, s_binary))
-        return color_binary
+
+def yCrCb_select(image, thresh=(0, 255), channel=0):
+    # 1) Convert to HLS color space
+    S = cv2.cvtColor(image, cv2.COLOR_RGB2YCrCb)[:, :, channel]
+    # 2) Apply a threshold to the S channel
+    binary_output = S.copy()
+    binary_output[(S < thresh[0]) | (S > thresh[1])] = 0
+    # 3) Return a binary image of threshold result
+    return binary_output
+
+
+def lab_select(image, thresh=(90, 255), channel=2):
+    lab = cv2.cvtColor(image, cv2.COLOR_RGB2LAB)
+    # channel = 2 for B
+    B = lab[:, :, channel]
+    binary = np.zeros_like(B)
+    binary[(B > thresh[0]) & (B <= thresh[1])] = 1
+    return binary
