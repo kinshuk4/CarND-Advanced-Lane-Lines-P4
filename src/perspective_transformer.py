@@ -79,8 +79,11 @@ def corners_unwarp(image, mtx, dist, nx=DEFAULT_NX, ny=DEFAULT_NY):
     return warped, M, Minv
 
 
-def transform(img, src_corners, dst_corners):
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+def transform(img, src_corners, dst_corners, is_gray=True):
+    if is_gray is False:
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    else:
+        gray = img
     img_size = (gray.shape[1], gray.shape[0])
 
     src = np.float32(src_corners)
@@ -95,7 +98,7 @@ def transform(img, src_corners, dst_corners):
     return binary_warped, Minv
 
 
-def transform_with_offset(img, src_corners, offset=(300, 0)):
+def transform_with_offset(img, src_corners, offset=(300, 0), is_gray=True):
     offset_x = offset[0]  # offset for dst points
     offset_y = offset[1]
     # Grab the image shape
@@ -112,4 +115,4 @@ def transform_with_offset(img, src_corners, offset=(300, 0)):
         [offset_x, img_size[1] - offset_y]  # bottom left
     ]
 
-    return transform(img, src_corners, dst_corners)
+    return transform(img, src_corners, dst_corners, is_gray=is_gray)
