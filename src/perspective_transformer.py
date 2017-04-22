@@ -5,13 +5,13 @@ DEFAULT_NX = 9
 DEFAULT_NY = 6
 
 
-def unwarp_image(image, src, dst):
-    h, w = image.shape[:2]
+def unwarp_image(img, src, dst):
+    h, w = img.shape[:2]
+    # use cv2.getPerspectiveTransform() to get M, the transform matrix, and Minv, the inverse
     M = cv2.getPerspectiveTransform(src, dst)
-
     Minv = cv2.getPerspectiveTransform(dst, src)
 
-    unwarped = cv2.warpPerspective(image, M, (h, w), flags=cv2.INTER_LINEAR)
+    unwarped = cv2.warpPerspective(img, M, (h, w), flags=cv2.INTER_LINEAR)
     return unwarped, M, Minv
 
 

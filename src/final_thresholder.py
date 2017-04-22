@@ -8,9 +8,17 @@ ABS_THRES = (0, 255)
 MAG_THRES = (0, 255)
 DIR_THRES = np.pi / 2
 SOBEL_KERNEL = 15
+DEFAULT_S_THRES = (100, 255)
+DEFAULT_SX_THRES = (20, 100)
+DEFAULT_ABS_THRES = (15, 210)
+DEFAULT_MAG_THRES = (50, 200)
+DEFAULT_DIR_THRES = (0.7, 1.2)
+DEFAULT_ABS_SOBEL_KERNEL = 3
+DEFAULT_DIR_SOBEL_KERNEL = 15
+DEFAULT_MAG_SOBEL_KERNEL = 9
 
 
-def grad_color_threshold(img, s_thres=(170, 255), sx_thres=(20, 100)):
+def grad_color_threshold(img, s_thres=DEFAULT_S_THRES, sx_thres=DEFAULT_SX_THRES):
     """
     Applies varies transformation on an image and combines them in one binary output
     Parameters
@@ -45,7 +53,7 @@ def grad_color_threshold(img, s_thres=(170, 255), sx_thres=(20, 100)):
     # be beneficial to replace this channel with something else.
     color_binary = np.dstack((np.zeros_like(sxbinary), sxbinary, s_binary))
 
-    combined_binary = np.zeros_like(sxbinary)
-    combined_binary[(s_binary == 1) | (sxbinary == 1)] = 1
+    combined_binary = np.zeros_like(color_binary)
+    combined_binary[(color_binary[:, :, 1] == 1) | (color_binary[:, :, 2] == 1)] = 1
 
     return color_binary, combined_binary

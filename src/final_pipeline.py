@@ -5,17 +5,14 @@ from moviepy.editor import VideoFileClip
 
 import src.lane_detector as ldt
 import src.final_thresholder as fth
+import src.color_thresholder as cth
 import src.perspective_transformer as ppt
+
+import src.image_thresholder_transformer as itt
 
 
 def pipeline_for_image(img, mtx, dist, corners):
-    # undistort image
-    undist = cv2.undistort(img, mtx, dist, None, mtx)
-    # Apply gradient and color filters
-    _, combined_binary = fth.grad_color_threshold(img)
-
-    # Transform perspective
-    binary_warped, Minv = ppt.transform_with_offset(combined_binary.astype(np.uint8), corners)
+    binary_warped, Minv, undist = itt.undistort_threshold_transform_image2(img, mtx, dist, corners)
     # Find lanes
     left_fitx, right_fitx, ploty, left_fit, right_fit = ldt.find_lane_lines(binary_warped)
     # Draw predicted lane area
