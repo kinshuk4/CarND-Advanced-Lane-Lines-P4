@@ -36,7 +36,7 @@ def pipeline_for_image(img, mtx, dist, corners):
 
 
 def pipeline_for_video(mtx, dist, corners, input_video="./project_video.mp4", output_video='output_video.mp4'):
-    clip1 = VideoFileClip("./project_video.mp4")
+    clip1 = VideoFileClip(input_video)
     test_clip = clip1.fx(transform_image, mtx, dist, corners)
     test_clip.write_videofile(output_video, audio=False, progress_bar=False)
 
