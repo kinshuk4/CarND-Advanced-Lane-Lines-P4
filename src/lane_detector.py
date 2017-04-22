@@ -2,6 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 
+IMG_WIDTH = 1280
+IMG_HEIGHT = 720
+LANE_WIDTH_PX = 640
+YM_PER_PX = 30 / IMG_HEIGHT  # meters per pixel in y dimension
+XM_PER_PX = 3.7 / LANE_WIDTH_PX  # meters per pixel in x dimension
+
 
 def find_lane_lines(binary_warped, visualize=False):
     """
@@ -112,7 +118,7 @@ def find_lane_lines(binary_warped, visualize=False):
     return left_fitx, right_fitx, ploty, left_fit, right_fit
 
 
-def get_curvature_radius(leftx, rightx, ploty, xm_per_pix=3.7 / 700, ym_per_pix=30 / 720):
+def get_curvature_radius(leftx, rightx, ploty, xm_per_pix=XM_PER_PX, ym_per_pix=YM_PER_PX):
     """Calculate radius of curvature from pixels of left and right lanes in a image.
     Args:
         leftx, rightx, ploty (arrays): points on the lane
@@ -157,7 +163,7 @@ def show_inside_lane(undist_img, binary_warped, Minv, left_fitx, right_fitx, plo
     return result
 
 
-def get_off_center(img, left_fit, right_fit, xm_per_pix=3.7 / 700, ym_per_pix=30 / 720):
+def get_off_center(img, left_fit, right_fit, xm_per_pix=XM_PER_PX):
     img_size = (img.shape[1], img.shape[0])
 
     left_intcpt = left_fit[0] * img_size[1] ** 2 + left_fit[1] * img_size[1] + left_fit[2]
