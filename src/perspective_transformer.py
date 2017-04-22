@@ -5,54 +5,35 @@ DEFAULT_NX = 9
 DEFAULT_NY = 6
 
 
-def warp_image(image, src, dst, image_size):
-    """
-    Apply perspective transformation on the provided image to gain a birds-eye-view,
-    based on the source and destination image points.
-    
-    :param image:
-        Image to transform
-        
-    :param: src:
-        Source coordinates
-        
-    :param dst:
-        Destination coordinates
-        
-    :param image_size:
-        Image shape as (width, height)
-        
-    :returns:
-        Tuple of the warped image, the transform matrix and inverse transform matrix
-    """
-
+def unwarp_image(image, src, dst):
+    h, w = image.shape[:2]
     M = cv2.getPerspectiveTransform(src, dst)
+
     Minv = cv2.getPerspectiveTransform(dst, src)
-    warped = cv2.warpPerspective(image, M, image_size, flags=cv2.INTER_LINEAR)
 
-    return warped, M, Minv
-
-
-def unwarp_image(image, src, dst, img_size):
-    M = cv2.getPerspectiveTransform(src, dst)
-    unwarped = cv2.warpPerspective(image, M, img_size, flags=cv2.INTER_LINEAR)
-    return unwarped
+    unwarped = cv2.warpPerspective(image, M, (h, w), flags=cv2.INTER_LINEAR)
+    return unwarped, M, Minv
 
 
 # Define a function that takes an image, number of x and y points,
 # camera matrix and distortion coefficients
-def corners_unwarp(image, mtx, dist, nx=DEFAULT_NX, ny=DEFAULT_NY):
+def corners_unwarp(img, mtx, dist, nx=DEFAULT_NX, ny=DEFAULT_NY):
     """
     Args:
         mtx: camera matrix
     """
     # remove distortion
-    undist = cv2.undistort(image, mtx, dist, None, mtx)
+    undist = cv2.undistort(img, mtx, dist, None, mtx)
     gray = cv2.cvtColor(undist, cv2.COLOR_BGR2GRAY)
+
     # Search for corners in the grayscaled image
     ret, corners = cv2.findChessboardCorners(gray, (nx, ny), None)
 
-    if ret == True:
+    warped = None
+    M = None
+    Minv = None
+
+    if ret is True:
         cv2.drawChessboardCorners(undist, (nx, ny), corners, ret)
         # Choose offset from image corners to plot detected corners
         # This should be chosen to present the result at the proper aspect ratio
@@ -79,7 +60,7 @@ def corners_unwarp(image, mtx, dist, nx=DEFAULT_NX, ny=DEFAULT_NY):
     return warped, M, Minv
 
 
-def transform(img, src_corners, dst_corners, is_gray=True):
+def transform(img, src_corners, dst_corners, is_gray=False):
     if is_gray is False:
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     else:
@@ -94,11 +75,11 @@ def transform(img, src_corners, dst_corners, is_gray=True):
     # Use this to revert transformation
     Minv = cv2.getPerspectiveTransform(dst, src)
     # Warp the image using OpenCV warpPerspective()
-    binary_warped = cv2.warpPerspective(gray, M, img_size)
+    binary_warped = cv2.warpPerspective(gray, M, img_size, flags=cv2.INTER_LINEAR)
     return binary_warped, Minv
 
 
-def transform_with_offset(img, src_corners, offset=(300, 0), is_gray=True):
+def transform_with_offset(img, src_corners, offset=(300, 0), is_gray=False):
     offset_x = offset[0]  # offset for dst points
     offset_y = offset[1]
     # Grab the image shape

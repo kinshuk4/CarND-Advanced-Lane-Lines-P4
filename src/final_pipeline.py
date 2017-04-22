@@ -3,7 +3,6 @@ import numpy as np
 # Import everything needed to edit/save/watch video clips
 from moviepy.editor import VideoFileClip
 
-
 import src.lane_detector as ldt
 import src.final_thresholder as fth
 import src.perspective_transformer as ppt

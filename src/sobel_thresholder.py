@@ -4,14 +4,16 @@ import numpy as np
 '''
 Module to group the static methods transforming the images to binary format after thresholding
 '''
+THRES_RANGE = (0, 255)
+DEFAULT_ABS_THRES = (25, 255)
+DEFAULT_MAG_THRES = (25, 255)
+DEFAULT_DIR_THRES = (0, 0.9)
+DEFAULT_SOBEL_KERNEL = None
+DEFAULT_MAG_KERNEL = 25
+DEFAULT_DIR_KERNEL = 7
 
-ABS_THRES = (0, 255)
-MAG_THRES = (0, 255)
-DIR_THRES = np.pi / 2
-SOBEL_KERNEL = 15
 
-
-def abs_sobel_thresh(img, orient='x', sobel_kernel=SOBEL_KERNEL, thres=ABS_THRES):
+def abs_sobel_threshold(img, orient='x', sobel_kernel=DEFAULT_SOBEL_KERNEL, thres=DEFAULT_ABS_THRES):
     """Apply the absolute Sobel filter.
     Sobel operator detects gradients in x and y directions.
     """
@@ -38,7 +40,7 @@ def abs_sobel_thresh(img, orient='x', sobel_kernel=SOBEL_KERNEL, thres=ABS_THRES
     return binary_output
 
 
-def mag_thresh(img, sobel_kernel=SOBEL_KERNEL, thres=MAG_THRES):
+def mag_threshold(img, sobel_kernel=DEFAULT_MAG_KERNEL, thres=DEFAULT_MAG_THRES):
     """Apply filter according to magnituide of gradient."""
     # Apply the following steps to img
     # 1) Convert to grayscale
@@ -58,7 +60,7 @@ def mag_thresh(img, sobel_kernel=SOBEL_KERNEL, thres=MAG_THRES):
     return binary_output
 
 
-def dir_threshold(img, sobel_kernel=SOBEL_KERNEL, thres=DIR_THRES):
+def dir_threshold(img, sobel_kernel=DEFAULT_DIR_KERNEL, thres=DEFAULT_DIR_THRES):
     # Apply the following steps to img
     # 1) Convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -78,14 +80,15 @@ def dir_threshold(img, sobel_kernel=SOBEL_KERNEL, thres=DIR_THRES):
     return binary_output
 
 
-def apply_gradient_filters(image, sobel_kernel=SOBEL_KERNEL, abs_thres=ABS_THRES, mag_thres=MAG_THRES,
-                           dir_thres=DIR_THRES):
+def apply_gradient_filters(image, sobel_kernel=DEFAULT_SOBEL_KERNEL, abs_thres=DEFAULT_ABS_THRES,
+                           mag_thres=DEFAULT_MAG_THRES,
+                           dir_thres=DEFAULT_DIR_THRES):
     # Choose a Sobel kernel size
     # Choose a larger sobel_kernel as odd number to smooth gradient measurements
     # Apply each of the thresholding functions
-    gradx = abs_sobel_thresh(image, orient='x', sobel_kernel=sobel_kernel, thres=abs_thres)
-    grady = abs_sobel_thresh(image, orient='y', sobel_kernel=sobel_kernel, thres=abs_thres)
-    mag_binary = mag_thresh(image, sobel_kernel=sobel_kernel, thres=mag_thres)
+    gradx = abs_sobel_threshold(image, orient='x', sobel_kernel=sobel_kernel, thres=abs_thres)
+    grady = abs_sobel_threshold(image, orient='y', sobel_kernel=sobel_kernel, thres=abs_thres)
+    mag_binary = mag_threshold(image, sobel_kernel=sobel_kernel, thres=mag_thres)
     dir_binary = dir_threshold(image, sobel_kernel=sobel_kernel, thres=dir_thres)
     # combine filters
     combined = np.zeros_like(dir_binary)
