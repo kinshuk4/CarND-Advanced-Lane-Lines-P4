@@ -8,7 +8,7 @@ import src.final_thresholder as fth
 import src.perspective_transformer as ppt
 
 
-def pipeline_for_image(img, mtx, dist, corners):
+def pipeline_for_image(img, mtx, dist):
     undist = cv2.undistort(img, mtx, dist, None, mtx)
     # Apply gradient and color filters
     _, combined_binary = fth.grad_color_threshold(img)
@@ -35,16 +35,16 @@ def pipeline_for_image(img, mtx, dist, corners):
     return result
 
 
-def pipeline_for_video(mtx, dist, corners, input_video="./project_video.mp4", output_video='output_video.mp4'):
+def pipeline_for_video(mtx, dist, input_video="./project_video.mp4", output_video='output_video.mp4'):
     clip1 = VideoFileClip(input_video)
-    test_clip = clip1.fx(transform_image, mtx, dist, corners)
+    test_clip = clip1.fx(transform_image, mtx, dist)
     test_clip.write_videofile(output_video, audio=False, progress_bar=False)
 
 
-def transform_image(clip, mtx, dist, input_corners):
+def transform_image(clip, mtx, dist):
     """Helper function to apply lane detection with parameters."""
 
     def _transform(img):
-        return pipeline_for_image(img, mtx, dist, input_corners)
+        return pipeline_for_image(img, mtx, dist)
 
     return clip.fl_image(_transform)

@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 
-
 IMG_WIDTH = 1280
 IMG_HEIGHT = 720
 LANE_WIDTH_PX = 640
