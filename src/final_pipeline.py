@@ -5,14 +5,17 @@ from moviepy.editor import VideoFileClip
 
 import src.lane_detector as ldt
 import src.final_thresholder as fth
-import src.color_thresholder as cth
 import src.perspective_transformer as ppt
-
-import src.image_thresholder_transformer as itt
 
 
 def pipeline_for_image(img, mtx, dist, corners):
-    binary_warped, Minv, undist = itt.undistort_threshold_transform_image2(img, mtx, dist, corners)
+    undist = cv2.undistort(img, mtx, dist, None, mtx)
+    # Apply gradient and color filters
+    _, combined_binary = fth.grad_color_threshold(img)
+
+    # Transform perspective
+    # binary_warped, Minv, M = ppt.transform_with_offset(combined_binary.astype(np.uint8), corners, is_gray=True)
+    binary_warped, Minv, M = ppt.transform_img(combined_binary, is_gray=True)
     # Find lanes
     left_fitx, right_fitx, ploty, left_fit, right_fit = ldt.find_lane_lines(binary_warped)
     # Draw predicted lane area
@@ -20,9 +23,10 @@ def pipeline_for_image(img, mtx, dist, corners):
 
     lane_mid = (left_fitx + right_fitx) / 2.0
 
-    off_center = ldt.get_off_center(img, left_fit, right_fit)
+    off_center = ldt.dist_from_center(left_fitx, right_fitx)
     # show curvature
     curve_rad, left_curverad, right_curverad = ldt.get_curvature_radius(left_fitx, right_fitx, ploty)
+
     cv2.putText(result, 'Radius of curvature (m): {:.2f}'.format(curve_rad),
                 (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2, cv2.LINE_AA)
 

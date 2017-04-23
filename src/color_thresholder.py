@@ -41,7 +41,7 @@ def get_channel(img, color_space='HLS', channel=2):
         return ch3
 
 
-DEFAULT_HLS_S_THRES = (125, 255)
+DEFAULT_HLS_S_THRES = (100, 255)
 DEFAULT_HLS_L_THRES = (220, 255)
 DEFAULT_LAB_B_THRES = (190, 255)
 
@@ -67,13 +67,14 @@ def hls_sthreshold(img, thres=(125, 255)):
 def hls_lthreshold(img, thresh=(220, 255)):
     # 1) Convert to HLS color space
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
-    hls_l = hls[:,:,1]
-    hls_l = hls_l*(255/np.max(hls_l))
+    hls_l = hls[:, :, 1]
+    hls_l = hls_l * (255 / np.max(hls_l))
     # 2) Apply a threshold to the L channel
     binary_output = np.zeros_like(hls_l)
     binary_output[(hls_l > thresh[0]) & (hls_l <= thresh[1])] = 1
     # 3) Return a binary image of threshold result
     return binary_output
+
 
 def bgr_select(img, thres=(0, 255), channel=2):
     '''

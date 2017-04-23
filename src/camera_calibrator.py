@@ -91,7 +91,7 @@ def find_chessboard_corners(image_file_pattern, nx=DEFAULT_NX, ny=DEFAULT_NY):
 
     if len(image_files) == 0:
         raise FileNotFoundError('No image files: {}'.format(image_file_pattern))
-
+    image_size = None
     # find chessborad corners for each image
     for image_file in image_files:
         image = cv2.imread(image_file)
@@ -104,6 +104,8 @@ def find_chessboard_corners(image_file_pattern, nx=DEFAULT_NX, ny=DEFAULT_NY):
         if image_corners is not None:
             imgpoints.append(image_corners)
             objpoints.append(objp)
+        else:
+            print("Failed to calibrate for: " + image_file)
 
     return objpoints, imgpoints, image_size
 
@@ -161,6 +163,7 @@ def undistort_image(image, mtx, dist):
     undist = cv2.undistort(image, mtx, dist, None, mtx)
 
     return undist
+
 
 def undistort_image_file(image_file, mtx, dist):
     '''

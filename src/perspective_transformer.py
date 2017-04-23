@@ -76,7 +76,24 @@ def transform(img, src_corners, dst_corners, is_gray=False):
     Minv = cv2.getPerspectiveTransform(dst, src)
     # Warp the image using OpenCV warpPerspective()
     binary_warped = cv2.warpPerspective(gray, M, img_size, flags=cv2.INTER_LINEAR)
-    return binary_warped, Minv
+    return binary_warped, Minv, M
+
+
+def transform_img(img, offset=(30, 0), is_gray=False):
+    img_size = (img.shape[1], img.shape[0])
+    offset_x = offset[0]  # offset for dst points
+    offset_y = offset[1]
+    src = [[100, img_size[1]],
+           [img_size[0] * 0.45, img_size[1] * 0.63],
+           [img_size[0] * 0.55, img_size[1] * 0.63],
+           [img_size[0] - 100, img_size[1]]]
+
+    dst = [[src[0][0] + offset_x, img_size[1] + offset_y],
+           [src[0][0] + offset_x, 0 + offset_y],
+           [src[-1][0] - offset_x, 0 - offset_y],
+           [src[-1][0] - offset_x, img_size[1] - offset_y]]
+
+    return transform(img, src, dst, is_gray=is_gray)
 
 
 def transform_with_offset(img, src_corners, offset=(300, 0), is_gray=False):
@@ -97,3 +114,23 @@ def transform_with_offset(img, src_corners, offset=(300, 0), is_gray=False):
     ]
 
     return transform(img, src_corners, dst_corners, is_gray=is_gray)
+
+
+def inverse_transform_with_offset(img, src_corners, offset=(300, 0), is_gray=False):
+    offset_x = offset[0]  # offset for dst points
+    offset_y = offset[1]
+    # Grab the image shape
+    img_size = (img.shape[1], img.shape[0])
+    # For source points I'm grabbing the outer four detected corners
+
+    # For destination points, I'm arbitrarily choosing some points to be
+    # a nice fit for displaying our warped result
+    # again, not exact, but close enough for our purposes
+    dst_corners = [
+        [offset_x, offset_y],  # top left
+        [img_size[0] - offset_x, offset_y],  # top right
+        [img_size[0] - offset_x, img_size[1] - offset_y],  # bottom right
+        [offset_x, img_size[1] - offset_y]  # bottom left
+    ]
+
+    return transform(img, dst_corners, src_corners, is_gray=is_gray)
