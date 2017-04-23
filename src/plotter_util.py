@@ -15,26 +15,23 @@ def plot_single_image(image, is_gray=False, is_save=False,
                       save_path="./image.png", title=None):
     if title is not None:
         plt.title(title)
+    show_image_on_gray(image, plt, is_gray=is_gray)
 
-    if is_gray is True:
-        plt.imshow(image, cmap='gray')
-    else:
-        plt.imshow(image)
     save_plot(plt, is_save=is_save, save_path=save_path)
 
 
 def plot_compare_two_images(image1, image2, suptitle="Heading", subtitle1="One", subtitle2="Two", is_save=False,
-                            save_path="./imageCombined.png"):
+                            save_path="./imageCombined.png", gray_vector=[False, False]):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 4))
 
     fig.suptitle(suptitle)
     # print("setting image1")
     ax1.set_title(subtitle1)
-    ax1.imshow(image1)
+    show_image_on_gray(image1, ax1, is_gray=gray_vector[0])
 
     # print("setting image2")
     ax2.set_title(subtitle2)
-    ax2.imshow(image2)
+    show_image_on_gray(image2, ax2, is_gray=gray_vector[1])
 
     save_plot(plt, is_save=is_save, save_path=save_path)
 
@@ -54,22 +51,22 @@ def plot_compare_two_image_paths(image_path1, image_path2, suptitle="Heading", s
 
 def plot_compare_three_images(image1, image2, image3, suptitle="Heading", subtitle1="One", subtitle2="Two",
                               subtitle3="Three", is_save=False,
-                              save_path="./imageCombined.png"):
+                              save_path="./imageCombined.png", gray_vector=[False, False, False]):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 4))
 
     fig.suptitle(suptitle)
 
     # print("setting image1")
     ax1.set_title(subtitle1)
-    ax1.imshow(image1)
+    show_image_on_gray(image1, ax1, is_gray=gray_vector[0])
 
     # print("setting image2")
     ax2.set_title(subtitle2)
-    ax2.imshow(image2)
+    show_image_on_gray(image2, ax2, is_gray=gray_vector[1])
 
     # print("setting image2")
     ax3.set_title(subtitle3)
-    ax3.imshow(image3)
+    show_image_on_gray(image3, ax3, is_gray=gray_vector[2])
 
     save_plot(plt, is_save=is_save, save_path=save_path)
 
@@ -119,11 +116,16 @@ def plot_compare_n_images_grayed(images, suptitle="Heading", subtitles=[], graye
             tup.set_title(str(i))
         else:
             tup.set_title(subtitles[i])
-        if grayed_array[i] is True:
-            tup.imshow(images[i], cmap='gray')
-        else:
-            tup.imshow(images[i])
+
+        show_image_on_gray(images[i], tup, is_gray=grayed_array[i])
 
         i += 1
 
     save_plot(plt, is_save=is_save, save_path=save_path)
+
+
+def show_image_on_gray(img, ax, is_gray=False):
+    if is_gray is True:
+        ax.imshow(img, cmap='gray')
+    else:
+        ax.imshow(img)
