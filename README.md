@@ -3,7 +3,7 @@
 
 This is the **Advanced Lane Finding** project from Udacity Self-Driving Car Engineer Nanodegree.
 
-The goal of this project is to develop a pipeline to process a video stream from a forward-facing camera mounted on the front of a car, and output an annotated video which identifies:
+The goal of this project is to develop a pipeline to process a video stream from a forward-facing camera mounted on the front of a car and output an annotated video which identifies:
 
 - The positions of the lane lines
 - The location of the vehicle relative to the center of the lane
@@ -18,7 +18,7 @@ The pipeline created for this project processes images in the following steps:
 - Use color transforms, gradients, etc., to create a thresholded binary image.
 - Apply a perspective transform to rectify binary image ("birds-eye view").
 - Detect lane pixels and fit to find the lane boundary.
-- Determine the curvature of the lane and vehicle position with respect to center.
+- Determine the curvature of the lane and vehicle position with respect to the center.
 - Warp the detected lane boundaries back onto the original image.
 - Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
